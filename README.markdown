@@ -25,6 +25,14 @@ cl-pov is CommonLisp binding of the *Persistence of Vision Raytracer*, or *POV-R
 $ sbcl --script sample.lisp > sample.pov
 $ povray sample.pov
 ```
+
+or
+
+```shellscript
+(for Roswell user)
+$ render sample.lisp
+```
+
 See also
 * [POV-Ray Official Documentation](http://www.povray.org/documentation/)
 * [POV-Ray Unofficial Documentation(ja)](http://www.arch.oita-u.ac.jp/povjp/)
