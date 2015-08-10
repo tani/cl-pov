@@ -1,4 +1,4 @@
-# cl-Pov
+# cl-pov
 
 cl-pov is CommonLisp binding of the *Persistence of Vision Raytracer*, or *POV-Ray*.
 
@@ -28,6 +28,7 @@ $ povray sample.pov
 See also
 * [POV-Ray Official Documentation](http://www.povray.org/documentation/)
 * [POV-Ray Unofficial Documentation(ja)](http://www.arch.oita-u.ac.jp/povjp/)
+
 ## Installation
 
 ```shellscript
