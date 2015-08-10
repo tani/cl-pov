@@ -32,10 +32,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
        `(format nil "<~@{~10r~^,~}>" ,@ls))))
 
 (set-dispatch-macro-character
- #\# #\t
+ #\# #\?
  #'(lambda (stream char1 char2)
      (declare (ignore char1 char2))
-     (list 'identity (read stream t nil t))))
+     (write-to-string (read stream t nil t))))
 
 (defun parse (sexp)
   "dummy function"
@@ -409,7 +409,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (defun parse (body)
   (mapcar
    (lambda (sexp)
-     (cond ((stringp sexp) (write-to-string sexp))
+     (cond ((stringp sexp) sexp)
 	   ((numberp sexp) (write-to-string sexp))
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (eval sexp))

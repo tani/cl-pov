@@ -9,7 +9,7 @@ exec ros -Q -- $0 "$@"
   (princ-to-string argv)
   (let* ((src (pathname (elt argv 0)))
 	 (temp (make-pathname
-		:directory '(:absolute "tmp")
+		:directory '(:relative ".")
 		:name (pathname-name src)
 		:type "pov")))
     (with-open-file (pov temp :direction :output)
