@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun on (sexp)
   (format nil "~(~a~)" sexp))
+
 (defparameter on
   '(:x :y :z
     ;;global_settings
@@ -107,6 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
    nil "~(~a~) ~{~a~^, ~}"
    (first sexp)
    (parse (rest sexp))))
+
 (defparameter area_light
   '(;;light_source area_light
     :area_light
@@ -413,6 +415,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((numberp sexp) (write-to-string sexp))
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (eval sexp))
+	   ((functionp (first sexp)) (eval (eval sexp)))
 	   ((member (first sexp) on) (on sexp))
 	   ((member (first sexp) area_light) (area_light sexp))
 	   ((member (first sexp) scattering) (scattering sexp))
@@ -428,9 +431,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member (first sexp) object) (object sexp))
 	   ((member (first sexp) rgb) (rgb sexp))
 	   ((member (first sexp) include) (include sexp))
-	   (t (eval sexp))))
+	   (t (first (parse (list (eval sexp)))))))
    body))
 
 (defmacro ray (stream &body body)
   `(format ,stream "~{~a~%~}" (parse ',body)))
-
