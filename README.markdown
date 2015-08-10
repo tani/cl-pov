@@ -6,7 +6,7 @@ cl-pov is CommonLisp binding of the *Persistence of Vision Raytracer*, or *POV-R
 
 ```lisp
 ;; sample.lisp
-(ql:quickload :cl-pov)
+(ql:quickload :cl-pov :silent t)
 (pov:ray t
   (:include "colors.inc")
   (:camera
@@ -22,7 +22,7 @@ cl-pov is CommonLisp binding of the *Persistence of Vision Raytracer*, or *POV-R
 ```
 	
 ```shellscript
-$ sbcl --script sample.lisp > sample.pov
+$ clisp sample.lisp > sample.pov
 $ povray sample.pov
 ```
 
