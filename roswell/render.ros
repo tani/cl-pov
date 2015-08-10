@@ -1,0 +1,19 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+(ql:quickload :uiop :silent t)
+(defun main (&rest argv)
+  (princ-to-string argv)
+  (let* ((src (pathname (elt argv 0)))
+	 (temp (make-pathname
+		:directory '(:absolute "tmp")
+		:name (pathname-name src)
+		:type "pov")))
+    (with-open-file (pov temp :direction :output)
+      (uiop:run-program `("ros" "-l" ,(namestring src)) :output pov))
+    (ignore-errors
+     (uiop:run-program `("povray" ,(namestring temp))))
+    (delete-file temp)))
