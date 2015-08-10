@@ -414,7 +414,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (eval sexp))
 	   ((member (first sexp) on) (on sexp))
-	   ((member (first sexp) red) (red sexp))
 	   ((member (first sexp) area_light) (area_light sexp))
 	   ((member (first sexp) scattering) (scattering sexp))
 	   ((member (first sexp) cylinder) (cylinder sexp))
