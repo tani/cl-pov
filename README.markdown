@@ -1,5 +1,5 @@
 # cl-pov
-
+![logo](examples/logo.png)
 cl-pov is CommonLisp binding of the *Persistence of Vision Raytracer*, or *POV-Ray*.
 
 ## Usage
