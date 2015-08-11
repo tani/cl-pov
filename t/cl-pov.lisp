@@ -7,8 +7,6 @@
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-pov)' in your Lisp.
 
-(plan nil)
-
-;; blah blah blah.
-
+(plan 1)
+(is 1 1)
 (finalize)
