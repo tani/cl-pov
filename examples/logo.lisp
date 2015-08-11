@@ -38,8 +38,8 @@
     (:texture
      (:pigment "White"))))
 
-(defun background nil
-  `(pov:ray nil (:background "White")))
+(defvar background
+  '(:background "White"))
 
 (pov:ray
  t
@@ -49,7 +49,7 @@
  (camera)
  (light_source)
  (plane)
- (background)
+ background
  (:union
   (:object
    (ball "Red")
