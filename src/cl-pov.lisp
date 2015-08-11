@@ -37,16 +37,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
      (declare (ignore char1 char2))
      (write-to-string (read stream t nil t))))
 
-(defun parse nil nil)
 (defun on (sexp)
   (format nil "~(~a~)" sexp))
 (defparameter on
   '(:x :y :z :on :off
     ;;global_settings
-    :ascii :utf8 :sys))
+    :ascii :utf8 :sys
+    ))
 
 (defun perspective (sexp)
-  (format nil "~(~a~)" (car sexp)))
+  (format nil "~(~a~)" (first sexp)))
 (defparameter perspective
   '(;;camera_type
     :perspective :orthographic
@@ -89,13 +89,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :ramp_wave :triangle_wave :sine_wave
     :scallop_wave :cubic_wave :poly_wave
     ;;texture option
-    :once))
+    :once
+    ))
 
-(defun area_light (sexp)
+(defun area_light (sexp parse)
   (format
    nil "~(~a~) ~{~a~^, ~}"
    (first sexp)
-   (parse (rest sexp))))
+   (funcall parse (rest sexp))))
 
 (defparameter area_light
   '(;;light_source area_light
@@ -120,12 +121,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :gradient :mandel :julia
     ))
 
-(defun scattering (sexp)
+(defun scattering (sexp parse)
   (format
    nil "~(~a~) {~%~2{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 3))
-   (parse (subseq sexp 3))))
+   (funcall parse (subseq sexp 1 3))
+   (funcall parse (subseq sexp 3))))
 
 (defparameter scattering
   '(;;media scattering
@@ -134,98 +135,99 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :box :sphere :torus :plane :poly
     ))
 
-(defun cylinder (sexp)
+(defun cylinder (sexp parse)
   (format
    nil "~(~a~) {~%~3{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 4))
-   (parse (subseq sexp 4))))
+   (funcall parse (subseq sexp 1 4))
+   (funcall parse (subseq sexp 4))))
 (defparameter cylinder
   '(;;objects
     :cylinder :triangle
     ))
 
-(defun cone (sexp)
+(defun cone (sexp parse)
   (format
    nil "~(~a~) {~%~4{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 5))
-   (parse (subseq sexp 5))))
+   (funcall parse (subseq sexp 1 5))
+   (funcall parse (subseq sexp 5))))
 (defparameter cone
   '(;;objects
     :cone :disc :quadric
     ))
 
-(defun smooth_triangle (sexp)
+(defun smooth_triangle (sexp parse)
   (format
    nil "~(~a~) {~%~6{~a,~a~^,~%~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 7))
-   (parse (subseq sexp 7))))
+   (funcall parse (subseq sexp 1 7))
+   (funcall parse (subseq sexp 7))))
 (defparameter smooth_triangle
   '(;objects
     :smooth_triangle 
     ))
 
-(defun polygon (sexp)
+(defun polygon (sexp parse)
   (let ((n (second sexp)))
     (format
      nil "~(~a~) {~%~{a~}~%~{~a~^,~}~%~{~a~%~}}"
      (first sexp)
-     (parse (list (second sexp)))
-     (parse (subseq sexp 2 (+ n 2)))
-     (parse (subseq sexp (+ n 2))))))
+     (funcall parse (list (second sexp)))
+     (funcall parse (subseq sexp 2 (+ n 2)))
+     (funcall parse (subseq sexp (+ n 2))))))
 (defparameter polygon
   '(;;objects
     :polygon :sor
     ))
 
-(defun bicubic_patch (sexp)
+(defun bicubic_patch (sexp parse)
   (format
    nil "~(~a~) {~%~4{~a~%~}~16{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 5))
-   (parse (subseq sexp 5 21))
-   (parse (subseq sexp 21))))
+   (funcall parse (subseq sexp 1 5))
+   (funcall parse (subseq sexp 5 21))
+   (funcall parse (subseq sexp 21))))
 (defparameter bicubic_patch
   '(;;objects
     :bicubic_patch
     ))
 
-(defun sphere_sweep (sexp)
+(defun sphere_sweep (sexp parse)
   (format
    nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a,~a~%~}~{~a~%~}}"
    (first sexp)
-   (parse (list (second sexp)))
-   (parse (list (third sexp)))
-   (parse (subseq sexp 3 (+ (* 2 (third sexp)) 3)))
-   (parse (subseq sexp (+ (* 2 (third sexp)) 3)))))
+   (funcall parse (list (second sexp)))
+   (funcall parse (list (third sexp)))
+   (funcall parse (subseq sexp 3 (+ (* 2 (third sexp)) 3)))
+   (funcall parse (subseq sexp (+ (* 2 (third sexp)) 3)))))
 (defparameter sphere_sweep
   '(;objects
     :sphere_sweep
     ))
 
-(defun lathe (sexp)
+(defun lathe (sexp parse)
   (format
    nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (list (second sexp)))
-   (parse (list (third sexp)))
-   (parse (subseq sexp 3 (+ (third sexp) 3)))
-   (parse (subseq sexp (+ (third sexp) 3)))))
+   (funcall parse (list (second sexp)))
+   (funcall parse (list (third sexp)))
+   (funcall parse (subseq sexp 3 (+ (third sexp) 3)))
+   (funcall parse (subseq sexp (+ (third sexp) 3)))))
 (defparameter lathe
   '(;objects
-    :lathe))
+    :lathe
+    ))
 
-(defun color_map (sexp)
+(defun color_map (sexp parse)
   (format
    nil "~(~a~) {~%~{~a~%~}}"
    (first sexp)
    (mapcar
     (lambda (list)
       (format nil "[~{~a~} ~{~a~^ ~}]"
-	      (parse (list (first list)))
-	      (parse (rest list))))
+	      (funcall parse (list (first list)))
+	      (funcall parse (rest list))))
     (rest sexp))))
 
 (defparameter color_map
@@ -235,23 +237,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :slope_map :normal_map
     ))
 
-(defun prism (sexp)
+(defun prism (sexp parse)
   (format
    nil "~(~a~) {~%~{~a ~}~{~a,~}~%~{~a~^,~}~%~{~a~%~}}"
    (first sexp)
-   (parse (subseq sexp 1 3))
-   (parse (subseq sexp 3 6))
-   (parse (subseq sexp 6 (+ (fifth sexp) 5)))
-   (parse (subseq sexp (+ (fifth sexp) 5)))))
+   (funcall parse (subseq sexp 1 3))
+   (funcall parse (subseq sexp 3 6))
+   (funcall parse (subseq sexp 6 (+ (fifth sexp) 5)))
+   (funcall parse (subseq sexp (+ (fifth sexp) 5)))))
 (defparameter prism
   '(;;objects
-    prism))
+    prism
+    ))
 
-(defun object (sexp)
+(defun object (sexp parse)
   (format
    nil "~(~a~) {~%~{~a~%~}}"
    (first sexp)
-   (parse (rest sexp))))
+   (funcall parse (rest sexp))))
 (defparameter object
   '(;;top level keywords
     :object :texture :camera :light_source
@@ -277,13 +280,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :irid :material_map :texture_list :interior_texture
     :interior
     ;;texture pattern
-    :pigment_pattern :image_pattern :object))
+    :pigment_pattern :image_pattern :object
+    ))
 
-(defun rgb (sexp)
+(defun rgb (sexp parse)
   (format
    nil "~(~a~) ~{~a~^ ~}"
    (first sexp)
-   (parse (rest sexp))))
+   (funcall parse (rest sexp))))
 (defparameter rgb
   '(;;colors
     :rgb :rgbf :srgb :srgbf
@@ -387,10 +391,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :map_type :interpolate
     ))
 
-(defun include (sexp)
+(defun include (sexp parse)
   (format
    nil "#~(~a~) ~{~a~}"
-   (first sexp) (parse (rest sexp))))
+   (first sexp) (funcall parse (rest sexp))))
 
 (defparameter include
   '(:include))
@@ -403,20 +407,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (first (parse (list (eval sexp)))))
 	   ((member (first sexp) perspective) (perspective sexp))
-	   ((member (first sexp) area_light) (area_light sexp))
-	   ((member (first sexp) scattering) (scattering sexp))
-	   ((member (first sexp) cylinder) (cylinder sexp))
-	   ((member (first sexp) cone) (cone sexp))
-	   ((member (first sexp) smooth_triangle) (smooth_triangle sexp))
-	   ((member (first sexp) polygon) (polygon sexp))
-	   ((member (first sexp) bicubic_patch) (bicubic_patch sexp))
-	   ((member (first sexp) sphere_sweep) (sphere_sweep sexp))
-	   ((member (first sexp) lathe) (lathe sexp))
-	   ((member (first sexp) color_map) (color_map sexp))
-	   ((member (first sexp) prism) (prism sexp))
-	   ((member (first sexp) object) (object sexp))
-	   ((member (first sexp) rgb) (rgb sexp))
-	   ((member (first sexp) include) (include sexp))
+	   ((member (first sexp) area_light) (area_light sexp #'parse))
+	   ((member (first sexp) scattering) (scattering sexp #'parse))
+	   ((member (first sexp) cylinder) (cylinder sexp #'parse))
+	   ((member (first sexp) cone) (cone sexp #'parse))
+	   ((member (first sexp) smooth_triangle) (smooth_triangle sexp #'parse))
+	   ((member (first sexp) polygon) (polygon sexp #'parse))
+	   ((member (first sexp) bicubic_patch) (bicubic_patch sexp #'parse))
+	   ((member (first sexp) sphere_sweep) (sphere_sweep sexp #'parse))
+	   ((member (first sexp) lathe) (lathe sexp #'parse))
+	   ((member (first sexp) color_map) (color_map sexp #'parse))
+	   ((member (first sexp) prism) (prism sexp #'parse))
+	   ((member (first sexp) object) (object sexp #'parse))
+	   ((member (first sexp) rgb) (rgb sexp #'parse))
+	   ((member (first sexp) include) (include sexp #'parse))
 	   (t (first (parse (list (eval sexp)))))))
    body))
 
