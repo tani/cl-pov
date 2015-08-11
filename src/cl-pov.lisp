@@ -37,32 +37,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
      (declare (ignore char1 char2))
      (write-to-string (read stream t nil t))))
 
-(defun parse (sexp)
-  "dummy function"
-  (identity sexp))
-
+(defun parse nil nil)
 (defun on (sexp)
   (format nil "~(~a~)" sexp))
-
 (defparameter on
-  '(:x :y :z
+  '(:x :y :z :on :off
     ;;global_settings
-    :ascii :utf8 :sys :on :off
-    ;;camera_type
+    :ascii :utf8 :sys))
+
+(defun perspective (sexp)
+  (format nil "~(~a~)" (car sexp)))
+(defparameter perspective
+  '(;;camera_type
     :perspective :orthographic
     :fisheye :ultra_wide_angle
     :omnimax :panoramic :cylinder :spherical
     ;;light_source
     :spotlight :cylinder :parallel
-    :shadowless :on :off
+    :shadowless  
     ;;light_source area_light
     :jitter :circular :orient
-    ;;light_group global_lights
-    :on :off
-    ;;global_settings radiosity
-    :on :off
-    ;;objects mesh hierarchy
-    :on :off
     ;;objects sor
     :open :sturm
     ;;objects lathe
@@ -76,22 +70,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;objects sphere_sweep
     :linear_spline :b_spline :cubic_spline
     ;;objects height_field
-    :smooth :on :off
+    :smooth  
     ;;objects blob
-    :on :off :sturm
+    :sturm
     ;;objects julia_fractal
     :quaternion :hypercomplex
-    :cube :exp :reciprocal :sin :asin :sinh
-    :asinh :cos :acos :cosh :acosh :tan :atan :tanh
-    :atanh :ln ; not support :pwr( X_Val, Y_Val )
     ;;objects cubic & quatric & poly
     :sturm
     ;;objects Options
     :clipped_by :bounded_by :hollow :no_shadow
     :no_image :no_reflection :double_illuminate
     :inverse :sturm
-    ;;finish reflection
-    :on :off
     ;;texture cutaway_textures
     :cutaway_textures
     ;;texture pattern crackle 
@@ -100,8 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :ramp_wave :triangle_wave :sine_wave
     :scallop_wave :cubic_wave :poly_wave
     ;;texture option
-    :once
-    ))
+    :once))
 
 (defun area_light (sexp)
   (format
@@ -289,8 +277,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :irid :material_map :texture_list :interior_texture
     :interior
     ;;texture pattern
-    :pigment_pattern :image_pattern :object
-    ))
+    :pigment_pattern :image_pattern :object))
 
 (defun rgb (sexp)
   (format
@@ -415,7 +402,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((numberp sexp) (write-to-string sexp))
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (first (parse (list (eval sexp)))))
-	   ((member (first sexp) on) (on sexp))
+	   ((member (first sexp) perspective) (perspective sexp))
 	   ((member (first sexp) area_light) (area_light sexp))
 	   ((member (first sexp) scattering) (scattering sexp))
 	   ((member (first sexp) cylinder) (cylinder sexp))
@@ -434,4 +421,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
    body))
 
 (defmacro ray (stream &body body)
-  `(format ,stream "~{~a~%~}" (parse ',body)))
+  `(format ,stream "~{~a~^,~%~}" (parse ',body)))
