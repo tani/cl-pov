@@ -51,12 +51,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   '(;;camera_type
     :perspective :orthographic
     :fisheye :ultra_wide_angle
-    :omnimax :panoramic :cylinder :spherical
+    :omnimax :panoramic :spherical
     ;;light_source
-    :spotlight :cylinder :parallel
-    :shadowless  
+    :spotlight :parallel
+    :shadowless
     ;;light_source area_light
     :jitter :circular :orient
+    ;;photons
+    :terget
     ;;objects sor
     :open :sturm
     ;;objects lathe
@@ -81,6 +83,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :clipped_by :bounded_by :hollow :no_shadow
     :no_image :no_reflection :double_illuminate
     :inverse :sturm
+    ;;texture pattern
+    :magnet :quilted :spiral1 :spiral2
+    :agate :average :boxed :bozo
+    :bumps :cylindrical :dents
+    :granite :leopard :marble :onion
+    :planer :radial :ripples :spherical
+    :spotted :waves :wood :wrinkles :cells
+    :facets
     ;;texture cutaway_textures
     :cutaway_textures
     ;;texture pattern crackle 
@@ -90,6 +100,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :scallop_wave :cubic_wave :poly_wave
     ;;texture option
     :once
+    ))
+
+(defun vertex_vectors (sexp parse)
+  (format
+   nil "~(~a~) {~%~{~a~},~%~{~a~^, ~}~%}"
+   (first sexp)
+   (funcall parse (list (second sexp)))
+   (funcall parse (cddr sexp))))
+(defparameter vertex_vectors
+  '(;;objects mesh2
+    :vertex_vectors :normal_vectors :uv_vectors
+    :texture_list :face_indices :normal_indices :uv_indices
     ))
 
 (defun area_light (sexp parse)
@@ -104,14 +126,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;media
     :samples
     ;;photons
-    :gather :media :expand_thresholds :radius
+    :gather :expand_thresholds :radius
     ;;objects mesh triangle
     :uv_vectors
     ;;objects mesh smooth_triangle
     :uv_vectors
-    ;;objects mesh2
-    :vertex_vectors :normal_vectors :uv_vectors
-    :texture_list :face_indices :normal_indices :uv_indices
     ;;objects julia_fractal
     :slice
     ;;objects text
@@ -123,11 +142,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun scattering (sexp parse)
   (format
-   nil "~(~a~) {~%~2{~a~^,~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~2{~a~^, ~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (subseq sexp 1 3))
    (funcall parse (subseq sexp 3))))
-
 (defparameter scattering
   '(;;media scattering
     :scattering
@@ -136,11 +154,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ))
 
 (defun cylinder (sexp parse)
-  (format
-   nil "~(~a~) {~%~3{~a~^,~}~%~{~a~%~}}"
-   (first sexp)
-   (funcall parse (subseq sexp 1 4))
-   (funcall parse (subseq sexp 4))))
+  (if (cdr sexp)
+      (format
+       nil "~(~a~) {~%~3{~a~^, ~}~%~{~a~%~}}"
+       (first sexp)
+       (funcall parse (subseq sexp 1 4))
+       (funcall parse (subseq sexp 4)))
+      (format nil "~(~a~)" (first sexp))))
 (defparameter cylinder
   '(;;objects
     :cylinder :triangle
@@ -148,7 +168,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun cone (sexp parse)
   (format
-   nil "~(~a~) {~%~4{~a~^,~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~4{~a~^, ~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (subseq sexp 1 5))
    (funcall parse (subseq sexp 5))))
@@ -159,7 +179,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun smooth_triangle (sexp parse)
   (format
-   nil "~(~a~) {~%~6{~a,~a~^,~%~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~6{~a, ~a~^,~%~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (subseq sexp 1 7))
    (funcall parse (subseq sexp 7))))
@@ -171,7 +191,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (defun polygon (sexp parse)
   (let ((n (second sexp)))
     (format
-     nil "~(~a~) {~%~{a~}~%~{~a~^,~}~%~{~a~%~}}"
+     nil "~(~a~) {~%~{~a,~}~%~{~a~^, ~}~%~{~a~%~}}"
      (first sexp)
      (funcall parse (list (second sexp)))
      (funcall parse (subseq sexp 2 (+ n 2)))
@@ -183,7 +203,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun bicubic_patch (sexp parse)
   (format
-   nil "~(~a~) {~%~4{~a~%~}~16{~a~^,~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~4{~a~%~}~16{~a~^, ~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (subseq sexp 1 5))
    (funcall parse (subseq sexp 5 21))
@@ -195,7 +215,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun sphere_sweep (sexp parse)
   (format
-   nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a,~a~%~}~{~a~%~}}"
+   nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a, ~a~%~}~{~a~%~}}"
    (first sexp)
    (funcall parse (list (second sexp)))
    (funcall parse (list (third sexp)))
@@ -208,7 +228,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun lathe (sexp parse)
   (format
-   nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a~^,~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~{~a~}~%~{~a~},~%~{~a~^, ~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (list (second sexp)))
    (funcall parse (list (third sexp)))
@@ -239,15 +259,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun prism (sexp parse)
   (format
-   nil "~(~a~) {~%~{~a ~}~{~a,~}~%~{~a~^,~}~%~{~a~%~}}"
+   nil "~(~a~) {~%~{~a~%~}~{~a,~^ ~}~%~{~a~^, ~}~%~{~a~%~}}"
    (first sexp)
    (funcall parse (subseq sexp 1 3))
    (funcall parse (subseq sexp 3 6))
-   (funcall parse (subseq sexp 6 (+ (fifth sexp) 5)))
-   (funcall parse (subseq sexp (+ (fifth sexp) 5)))))
+   (funcall parse (subseq sexp 6 (+ (sixth sexp) 6)))
+   (funcall parse (subseq sexp (+ (sixth sexp) 6)))))
 (defparameter prism
   '(;;objects
-    prism
+    :prism
     ))
 
 (defun object (sexp parse)
@@ -267,7 +287,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;atomospheric effects
     :background :sky_sphere :fog :rainbow
     ;;media
-    :media :density
+    :density
     ;;objects
     :superellipsoid :mesh :mesh2 :height_field
     :blob :julia_fractal :text :cubic :quatric ;;not support isosurface
@@ -275,8 +295,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :merge :union :difference :intersection :clipped_by :bounded_by
     ;;objects options
     :material
-    ;;texture ;;not support color_reflection_min (:reflection)
-    :pigment :image_map :normal :bump_map :finish :reflection
+    ;;texture
+    :pigment :image_map :normal :bump_map :finish
     :irid :material_map :texture_list :interior_texture
     :interior
     ;;texture pattern
@@ -285,8 +305,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (defun rgb (sexp parse)
   (format
-   nil "~(~a~) ~{~a~^ ~}"
+   nil "~(~a~)~[~;~:; ~{~a~^ ~}~]"
    (first sexp)
+   (length sexp)
    (funcall parse (rest sexp))))
 (defparameter rgb
   '(;;colors
@@ -330,6 +351,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;photons
     :spacing :count :jitter :max_trace_level
     :adc_bailout :save_file :load_file :autostop
+    :target :collect :refraction :pass_through
     ;;radiosity
     :adc_bailout :always_sample :brightness :count :error_bound
     :gray_threshold :low_error_factor :max_sample :media
@@ -374,14 +396,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :brick_size :mortar
     ;;texture pattern crackle
     :crackle :form :metric :offset
-    ;;texture pattern
-    :magnet :quilted :spiral1 :spiral2
-    :agate :average :boxed :bozo
-    :bumps :cylindrical :dents
-    :granite :leopard :marble :onion
-    :planer :radial :ripples :spherical
-    :spotted :waves :wood :wrinkles :cells
-    :facets 
     ;;texture pattern quilted
     :control0 :control1
     ;;texture pattern facets
@@ -397,13 +411,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   (format
    nil "#~(~a~) ~{~a~}"
    (first sexp) (funcall parse (rest sexp))))
-
 (defparameter include
   '(:include))
 
 (defun multiple (sexp parse)
   (format nil "~{~a~^*~}" (funcall parse (rest sexp))))
 (defparameter multiple '(*))
+
+(defun division (sexp parse)
+  (format nil "~{~a~^/~}" (funcall parse (rest sexp))))
+(defparameter division '(/))
+
+(defun media (sexp parse)
+  (if (member-if #'numberp sexp)
+      (format
+       nil "~(~a~) ~{~a~^, ~}"
+       (first sexp)
+       (funcall parse (rest sexp)))
+      (format
+       nil "~(~a~) {~%~{~a~%~}}"
+       (first sexp)
+       (funcall parse (rest sexp)))))
+(defparameter media
+  '(;;media & photons
+    :media))
+
+(defun reflection (sexp parse)
+  (if (member-if #'numberp sexp)
+      (if (and (numberp (second sexp)) (numberp (third sexp)))
+	  (format nil "~(~a~) {~%~a, ~a~%~{~a~%~}}"
+		  (first sexp)
+		  (funcall parse (list (second sexp)))
+		  (funcall parse (list (third sexp)))
+		  (funcall parse (nthcdr 3 sexp)))
+	  (format nil "~(~a~) {~%~{~a~%~}}"
+		  (first sexp)
+		  (funcall parse (rest sexp))))
+      (format nil "~(~a~) ~{~a~}"
+	      (first sexp)
+	      (funcall parse (list (second sexp))))))
+
+(defparameter reflection
+  '(;;photons
+    :reflection
+    ))
 
 (defun parse (body)
   (mapcar
@@ -413,8 +464,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (first (parse (list (eval sexp)))))
 	   ((member (first sexp) perspective) (perspective sexp))
+	   ((member (first sexp) media) (media sexp #'parse))
+	   ((member (first sexp) reflection) (reflection sexp #'parse))
 	   ((member (first sexp) multiple) (multiple sexp #'parse))
+	   ((member (first sexp) division) (division sexp #'parse))
 	   ((member (first sexp) area_light) (area_light sexp #'parse))
+	   ((member (first sexp) vertex_vectors) (vertex_vectors sexp #'parse))
 	   ((member (first sexp) scattering) (scattering sexp #'parse))
 	   ((member (first sexp) cylinder) (cylinder sexp #'parse))
 	   ((member (first sexp) cone) (cone sexp #'parse))
@@ -432,4 +487,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
    body))
 
 (defmacro ray (stream &body body)
-  `(format ,stream "~{~a~^,~%~}" (parse ',body)))
+  `(format ,stream "~{~a~^ ~%~}" (parse ',body)))
