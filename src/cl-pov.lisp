@@ -301,6 +301,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;camera
     :location :right :up :direction :sky :angle :look_at
     :aperture :focal_point :blur_samples :confidence :variance
+    ;;light_group
+    :global_lights
     ;;light_source
     :color :fade_distance :fade_power
     :media_attenuation :media_interaction
@@ -399,6 +401,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 (defparameter include
   '(:include))
 
+(defun multiple (sexp parse)
+  (format nil "~{~a~^*~}" (funcall parse (rest sexp))))
+(defparameter multiple '(*))
+
 (defun parse (body)
   (mapcar
    (lambda (sexp)
@@ -407,6 +413,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member sexp on) (on sexp))
 	   ((symbolp sexp) (first (parse (list (eval sexp)))))
 	   ((member (first sexp) perspective) (perspective sexp))
+	   ((member (first sexp) multiple) (multiple sexp #'parse))
 	   ((member (first sexp) area_light) (area_light sexp #'parse))
 	   ((member (first sexp) scattering) (scattering sexp #'parse))
 	   ((member (first sexp) cylinder) (cylinder sexp #'parse))
