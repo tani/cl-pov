@@ -7,7 +7,7 @@
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-pov)' in your Lisp.
 
-(plan 23)
+(plan 25)
 (defmacro test (&key case result)
   `(is (pov:ray nil ,case)
        ,result #'string=))
@@ -609,4 +609,54 @@ linear_spline
 <-1,-1>, <-0.5,-0.5>, <0.5,-0.5>, <1,-1>, <1,1>, <0.5,0.5>, <-0.5,0.5>, <-1,1>, <-1,-1>, <-0.75,-0.3>, <0.75,-0.3>, <0.75,0.3>, <-0.75,0.3>, <-0.75,-0.3>
 translate <-2.5,-1,2>
 }")
+
+(test
+ :case
+ (:sphere_sweep
+  (:linear_spline)
+  4
+  <-0.5 0 0>  0.1
+  <-0.5 0 1>  0.1
+  < 0.5 0 0>  0.1
+  < 0.5 0 1>  0.1)
+ :result
+"sphere_sweep {
+linear_spline
+4,
+<-0.5,0,0>, 0.1
+<-0.5,0,1>, 0.1
+<0.5,0,0>, 0.1
+<0.5,0,1>, 0.1
+}")
+
+(test
+ :case
+ (:height_field
+  (:tga #?"hf_image_0.tga"
+	(:smooth)
+	(:rotate (* :x 90)))
+  (:pigment
+   (:color (:rgb <0.4 0.8 0.2>)))
+  (:finish
+   (:phong 1)
+   (:reflection 0.1))
+  (:translate <-0.5 0.5 0>)
+  (:scale <2 2 0.5>))
+ :result
+"height_field {
+tga \"hf_image_0.tga\" smooth rotate x*90
+pigment {
+color rgb <0.4,0.8,0.2>
+}
+finish {
+phong 1
+reflection {
+0.1
+}
+}
+translate <-0.5,0.5,0>
+scale <2,2,0.5>
+}")
+
 (finalize)
+
