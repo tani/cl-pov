@@ -16,7 +16,7 @@
   :version "0.1"
   :author "Masaya TANIGUCHI"
   :license "GPLv3"
-  :depends-on ()
+  :depends-on (:cl-ppcre)
   :components ((:module "src"
                 :components
                 ((:file "cl-pov"))))
