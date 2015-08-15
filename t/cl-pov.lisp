@@ -7,7 +7,7 @@
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-pov)' in your Lisp.
 
-(plan 25)
+(plan 45)
 (defmacro test (&key case result)
   `(is (pov:ray nil ,case)
        ,result #'string=))
@@ -658,5 +658,554 @@ translate <-0.5,0.5,0>
 scale <2,2,0.5>
 }")
 
-(finalize)
+(test
+ :case
+ (:blob
+  (:threshold 0.27)
+  (:sphere <-1 0 3> 1.5 0.5)
+  (:sphere <1 0 3> 1.5 0.5)
+  (:cylinder (- (* :x 2)) (* :x 2) 1.5 0.5
+	     (:translate (* :z 1)))
+  (:pigment
+   (:color (:rgb (* <1 0.8 0.3> 1.5))))
+  (:finish
+   (:phong 1)
+   (:reflection 0.1))
+  (:scale 0.5))
+ :result
+ "blob {
+threshold 0.27
+sphere {
+<-1,0,3>, 1.5, 0.5
+}
+sphere {
+<1,0,3>, 1.5, 0.5
+}
+cylinder {
+-x*2, x*2, 1.5, 0.5
+translate z*1
+}
+pigment {
+color rgb <1,0.8,0.3>*1.5
+}
+finish {
+phong 1
+reflection {
+0.1
+}
+}
+scale 0.5
+}")
 
+(test
+ :case
+ (:julia_fractal
+  <0.3 0.5 0.0 0.3>
+  (:quaternion)
+  (:pigment
+   (:color (:rgb (* <1 0.6 0> 1.5))))
+  (:finish
+   (:phong 1))
+  (:rotate <0 -90 180>)
+  (:translate (* :z 1)))
+ :result
+ "julia_fractal {
+<0.3,0.5,0.0,0.3>
+quaternion
+pigment {
+color rgb <1,0.6,0>*1.5
+}
+finish {
+phong 1
+}
+rotate <0,-90,180>
+translate z*1
+}")
+(test
+ :case
+ (:text
+  (:ttf #?"c:\WINDOWS\FONTS\Arial.ttf"
+	#?"POV-Ray"
+	1 (* :x (- 0.03)))
+  (:pigment
+   (:color (:rgb (* <1 0.6 0.6> 2))))
+  (:finish
+   (:phong 1)
+   (:reflection 0.2))
+  (:rotate (* :x 90))
+  (:translate <-2 1 2>))
+ :result
+ "text {
+ttf \"c:\WINDOWS\FONTS\Arial.ttf\", \"POV-Ray\", 1, x*-0.03
+pigment {
+color rgb <1,0.6,0.6>*2
+}
+finish {
+phong 1
+reflection {
+0.2
+}
+}
+rotate x*90
+translate <-2,1,2>
+}")
+
+(test
+ :case
+ (:plane
+  :z 0
+  (:pigment
+   (:checker (* "White" 1.2) (:color (:rgb (* <0.5 0.9 0.9> 0.5))))
+   (:scale 0.2))
+  (:finish
+   (:phong 1)
+   (:reflection 0.3)))
+ :result
+ "plane {
+z, 0
+pigment {
+checker White*1.2, color rgb <0.5,0.9,0.9>*0.5
+scale 0.2
+}
+finish {
+phong 1
+reflection {
+0.3
+}
+}
+}")
+
+(test
+ :case
+ (:quadric
+  <1 1 -1> <0 0 0> <0 0 0> -1
+  (:clipped_by "Box")
+  (:transform "U_2"))
+ :result
+ "quadric {
+<1,1,-1>, <0,0,0>, <0,0,0>, -1
+clipped_by {
+Box
+}
+transform U_2
+}")
+
+(test
+ :case
+ (:quartic
+  <1 0 0 0 0 0 0 
+  0 1 0 0 0 0 0 
+  0 0 1 0 0 0 0 
+  0 0 0 1 0 0 0 
+  0 0 0 0 1 0 1>
+  (:texture "Check"))
+ :result
+  "quartic {
+<1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1>
+texture {
+Check
+}
+}")
+(test
+ :case
+ (:poly
+  5 
+  <1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 1>
+  (:pigment
+   (:checker (* "White" 1.8) (:color (:rgb (* <1 1 0.3> 1.5)))))
+  (:finish
+   (:phong 1)
+   (:reflection 0.1))
+  (:rotate (* :y -90)))
+ :result
+ "poly {
+5, <1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1>
+pigment {
+checker White*1.8, color rgb <1,1,0.3>*1.5
+}
+finish {
+phong 1
+reflection {
+0.1
+}
+}
+rotate y*-90
+}")
+(test
+ :case
+ (:bicubic_patch
+  (:type 1)
+  (:flatness 0)
+  (:u_steps 4)
+  (:v_steps 4)
+  <0 0 0> <1 0 1> <2 0 1> <3 0 0>
+  <0 1 1> <1 1 1> <2 1 1> <3 1 1>
+  <0 2 1> <1 2 1> <2 2 1> <3 2 1>
+  <0 3 0> <1 3 1> <2 3 1> <3 3 2>
+  (:pigment
+   (:checker (* "White" 1.2) (:color (:rgb <0.2 1 1>)))
+   (:scale 0.5))
+  (:finish
+   (:phong 1)
+   (:reflection 0.2))
+  (:translate <-1.5 -1.5 0>))
+ :result
+ "bicubic_patch {
+type 1
+flatness 0
+u_steps 4
+v_steps 4
+<0,0,0>, <1,0,1>, <2,0,1>, <3,0,0>, <0,1,1>, <1,1,1>, <2,1,1>, <3,1,1>, <0,2,1>, <1,2,1>, <2,2,1>, <3,2,1>, <0,3,0>, <1,3,1>, <2,3,1>, <3,3,2>
+pigment {
+checker White*1.2, color rgb <0.2,1,1>
+scale 0.5
+}
+finish {
+phong 1
+reflection {
+0.2
+}
+}
+translate <-1.5,-1.5,0>
+}")
+
+(test
+ :case
+ (:union
+  (:cone
+   (* :x -1.8) 1.5 (* :x 1.5) 0.5
+   (:texture "Bump_Check"))
+  (:sphere
+   :x 1.8
+   (:texture "Bump_Leopard"))
+  (:clipped_by
+   (:plane :z 0)))
+ :result
+ "union {
+cone {
+x*-1.8, 1.5, x*1.5, 0.5
+texture {
+Bump_Check
+}
+}
+sphere {
+x, 1.8
+texture {
+Bump_Leopard
+}
+}
+clipped_by {
+plane {
+z, 0
+}
+}
+}")
+
+(test
+ :case
+ (:intersection
+  (:cone
+   (* :x -1.8) 1.5 (* :x 1.5) 0.5
+   (:texture "Bump_Check"))
+  (:sphere
+   :x 1.8
+   (:texture "Bump_Leopard"))
+  (:clipped_by
+   (:plane :z 0)))
+ :result
+ "intersection {
+cone {
+x*-1.8, 1.5, x*1.5, 0.5
+texture {
+Bump_Check
+}
+}
+sphere {
+x, 1.8
+texture {
+Bump_Leopard
+}
+}
+clipped_by {
+plane {
+z, 0
+}
+}
+}")
+
+(test
+ :case
+ (:difference
+  (:cone
+   (* :x -1.8) 1.5 (* :x 1.5) 0.5
+   (:texture "Bump_Check"))
+  (:sphere
+   :x 1.8
+   (:texture "Bump_Leopard"))
+  (:clipped_by
+   (:plane :z 0)))
+ :result
+ "difference {
+cone {
+x*-1.8, 1.5, x*1.5, 0.5
+texture {
+Bump_Check
+}
+}
+sphere {
+x, 1.8
+texture {
+Bump_Leopard
+}
+}
+clipped_by {
+plane {
+z, 0
+}
+}
+}")
+
+(test
+ :case
+ (:merge
+  (:cone
+   (* :x -1.8) 1.5 (* :x 1.5) 0.5
+   (:texture "Bump_Check"))
+  (:sphere
+   :x 1.8
+   (:texture "Bump_Leopard"))
+  (:clipped_by
+   (:plane :z 0)))
+ :result
+ "merge {
+cone {
+x*-1.8, 1.5, x*1.5, 0.5
+texture {
+Bump_Check
+}
+}
+sphere {
+x, 1.8
+texture {
+Bump_Leopard
+}
+}
+clipped_by {
+plane {
+z, 0
+}
+}
+}")
+
+(test
+ :case
+ (:object
+  (:cylinder
+   <-5 0.5 0.5> <5 0.5 0.5> 0.3
+   (:pigment
+    (:color (:rgb 0.8))))
+  (:bounded_by
+   (:box
+    <0 0 0>  <1 1 1>
+    (:pigment
+     (:color (:rgb 0.5)))))
+  (:clipped_by
+   (:bounded_by)))
+ :result
+ "object {
+cylinder {
+<-5,0.5,0.5>, <5,0.5,0.5>, 0.3
+pigment {
+color rgb 0.8
+}
+}
+bounded_by {
+box {
+<0,0,0>, <1,1,1>
+pigment {
+color rgb 0.5
+}
+}
+}
+clipped_by {
+bounded_by
+}
+}")
+
+(test
+ :case
+ (:object
+  (:cylinder
+   <-5 0.5 0.5> <5 0.5 0.5> 0.3
+   (:pigment
+    (:color (:rgb 0.8))))
+  (:clipped_by
+   (:box
+    <0 0 0>  <1 1 1>
+    (:pigment
+     (:color (:rgb 0.5)))))
+  (:bounded_by
+   (:clipped_by)))
+ :result
+ "object {
+cylinder {
+<-5,0.5,0.5>, <5,0.5,0.5>, 0.3
+pigment {
+color rgb 0.8
+}
+}
+clipped_by {
+box {
+<0,0,0>, <1,1,1>
+pigment {
+color rgb 0.5
+}
+}
+}
+bounded_by {
+clipped_by
+}
+}")
+
+(test
+ :case
+ (:union
+  (:sphere
+   (* -0.5 :x) 1
+   (:hollow :off))
+  (:sphere
+   (* 0.5 :x) 1)
+  (:hollow))
+ :result
+ "union {
+sphere {
+-0.5*x, 1
+hollow off
+}
+sphere {
+0.5*x, 1
+}
+hollow
+}")
+
+(test
+ :case
+ (:sphere
+  <-0.5 0 0.1> 0.4  
+  (:no_shadow)
+  (:texture
+   (:finish
+    "Shiny")
+   (:pigment
+    (:color (:rgb <1 0.6 1>)))))
+ :result
+ "sphere {
+<-0.5,0,0.1>, 0.4
+no_shadow
+texture {
+finish {
+Shiny
+}
+pigment {
+color rgb <1,0.6,1>
+}
+}
+}")
+
+(test
+ :case
+ (:sphere
+  <-0.5 0 0.1> 0.4  
+  (:no_reflection)
+  (:texture
+   (:finish
+    "Shiny")
+   (:pigment
+    (:color (:rgb <1 0.6 1>)))))
+ :result
+ "sphere {
+<-0.5,0,0.1>, 0.4
+no_reflection
+texture {
+finish {
+Shiny
+}
+pigment {
+color rgb <1,0.6,1>
+}
+}
+}")
+
+(test
+ :case
+ (:union
+  (:light_source <0 0 0> "White")
+  (:object
+   (:sphere <0 0 0> 1)
+   (:double_illuminate)))
+ :result
+ "union {
+light_source {
+<0,0,0>
+White
+}
+object {
+sphere {
+<0,0,0>, 1
+}
+double_illuminate
+}
+}")
+
+(test
+ :case
+ (:sphere
+  (* :z 3) 1
+  (:material "MyGlass"))
+ :result
+ "sphere {
+z*3, 1
+material {
+MyGlass
+}
+}")
+(test
+ :case
+ (:intersection
+  (:sphere
+   <0 0 0>  1  
+   (:texture
+    (:finish "Shiny")
+    (:pigment
+     (:color (:rgb <0.6 1 0.6>)))))
+  (:box
+   <0 0 0>  <1.5 1.5 1.5>
+   (:inverse)
+   (:pigment
+    (:color (:rgb <1 0.7 0.2>))))
+  (:translate (* :x -3)))
+ :result
+ "intersection {
+sphere {
+<0,0,0>, 1
+texture {
+finish {
+Shiny
+}
+pigment {
+color rgb <0.6,1,0.6>
+}
+}
+}
+box {
+<0,0,0>, <1.5,1.5,1.5>
+inverse
+pigment {
+color rgb <1,0.7,0.2>
+}
+}
+translate x*-3
+}")
+
+(finalize)

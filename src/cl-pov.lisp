@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (cl:in-package #:cl)
 (defpackage #:cl-pov
-  (:use #:cl)
+  (:use #:cl #:cl-ppcre)
   (:nicknames #:pov)
   (:export ray *POV-Ray-version*))
 (in-package #:pov)
@@ -80,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;objects cubic & quatric & poly
     :sturm
     ;;objects Options
-    :clipped_by :bounded_by :hollow :no_shadow
+    :no_shadow
     :no_image :no_reflection :double_illuminate
     :inverse :sturm
     ;;texture pattern
@@ -150,10 +150,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   '(;;media scattering
     :scattering
     ;;object
-    :box :sphere :torus :plane :poly
+    :box :torus :plane :poly
     ))
 
 (defun cylinder (sexp parse)
+  (let ((first (format nil "~(~a~)" (first sexp)))
+	(rest (funcall parse (rest sexp))))
+    (format
+     nil "~(~a~) {~%~{~a~^, ~}~%~{~a~%~}}"
+     first
+     (loop for x in rest
+	   while (scan "^(<[0-9xyz,.*/+-]+>|[0-9xyz.*/+-]+)$" x)
+	   collect x)
+     (member-if-not
+      (lambda (x)
+	(scan "^(<[0-9xyz,.*/+-]+>|[0-9xyz.*/+-]+)$" x))
+      rest))))
+
+(defparameter cylinder
+  '(;;object
+    :cylinder :sphere
+    ))
+
+(defun triangle (sexp parse)
   (if (cdr sexp)
       (format
        nil "~(~a~) {~%~3{~a~^, ~}~%~{~a~%~}}"
@@ -161,9 +180,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
        (funcall parse (subseq sexp 1 4))
        (funcall parse (subseq sexp 4)))
       (format nil "~(~a~)" (first sexp))))
-(defparameter cylinder
+(defparameter triangle
   '(;;objects
-    :cylinder :triangle
+    :triangle
     ))
 
 (defun cone (sexp parse)
@@ -290,9 +309,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :density
     ;;objects
     :superellipsoid :mesh :mesh2 :height_field
-    :blob :julia_fractal :text :cubic :quatric ;;not support isosurface
+    :blob :julia_fractal :text :cubic :quartic ;;not support isosurface
     ;;objects CSG
-    :merge :union :difference :intersection :clipped_by :bounded_by
+    :merge :union :difference :intersection
     ;;objects options
     :material
     ;;texture
@@ -302,6 +321,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     ;;texture pattern
     :pigment_pattern :image_pattern :object
     ))
+
+(defun clipped_by (sexp parse)
+  (let ((first (format nil "~(~a~)" (first sexp)))
+	(rest  (funcall parse (rest sexp))))
+    (format nil "~a~[~:; {~%~{~a~%~}}~]"
+	    first (length rest) rest)))
+(defparameter clipped_by
+  '(;;CSG option
+    :clipped_by :bounded_by))
 
 (defun rgb (sexp parse)
   (format
@@ -314,7 +342,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :rgb :rgbf :srgb :srgbf
     :red :green :blue :filter :transmit
     ;;transforms
-    :rotate :translate :scale :matrix
+    :rotate :translate :scale :matrix :transform
     ;;global_settings
     :adc_bailout :ambient_light :assumed_gamma
     :hf_gray_16 :irid_wavelength :charset :max_intersections
@@ -372,6 +400,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     :max_iteration :precision
     ;;objects bicubic_patch
     :type :flatness :u_steps :v_steps
+    ;;object option
+    :hollow
     ;;texture pigment image_map
     :gif :tga :pot :png :pgm :ppm :jpeg :tiff ; not support :SYS
     ;;texture normal bump_map
@@ -422,6 +452,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   (format nil "~{~a~^/~}" (funcall parse (rest sexp))))
 (defparameter division '(/))
 
+(defun minus (sexp parse)
+  (let ((rest (funcall parse (rest sexp))))
+    (if (= 1 (length rest))
+	(format nil "-~a" (first rest))
+	(format nil "~{~a~^-~}" rest))))
+(defparameter minus '(-))
+
 (defun media (sexp parse)
   (if (member-if #'numberp sexp)
       (format
@@ -468,9 +505,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member (first sexp) reflection) (reflection sexp #'parse))
 	   ((member (first sexp) multiple) (multiple sexp #'parse))
 	   ((member (first sexp) division) (division sexp #'parse))
+	   ((member (first sexp) minus) (minus sexp #'parse))
 	   ((member (first sexp) area_light) (area_light sexp #'parse))
 	   ((member (first sexp) vertex_vectors) (vertex_vectors sexp #'parse))
 	   ((member (first sexp) scattering) (scattering sexp #'parse))
+	   ((member (first sexp) triangle) (triangle sexp #'parse))
 	   ((member (first sexp) cylinder) (cylinder sexp #'parse))
 	   ((member (first sexp) cone) (cone sexp #'parse))
 	   ((member (first sexp) smooth_triangle) (smooth_triangle sexp #'parse))
@@ -480,6 +519,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	   ((member (first sexp) lathe) (lathe sexp #'parse))
 	   ((member (first sexp) color_map) (color_map sexp #'parse))
 	   ((member (first sexp) prism) (prism sexp #'parse))
+	   ((member (first sexp) clipped_by) (clipped_by sexp #'parse))
 	   ((member (first sexp) object) (object sexp #'parse))
 	   ((member (first sexp) rgb) (rgb sexp #'parse))
 	   ((member (first sexp) include) (include sexp #'parse))
