@@ -1,10 +1,10 @@
 #|
   This file is a part of cl-pov project.
-  Copyright (c) 2015 Masaya TANIGUCHI (ta2gch@gmail.com)
+  Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
 |#
 
 #|
-  Author: Masaya TANIGUCHI (ta2gch@gmail.com)
+  Author: Masaya TANIGUCHI (asciian@gmail.com)
 |#
 
 (in-package :cl-user)

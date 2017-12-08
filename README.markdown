@@ -42,7 +42,7 @@ See also
 
 ```shellscript
 $ mkdir ~/common-lisp && cd ~/common-lisp
-$ git clone git://github.com/ta2gch/cl-pov
+$ git clone git://github.com/asciian/cl-pov
 ```
 
 ## Requirements
@@ -52,11 +52,11 @@ cl-pov supports POV-Ray 3.5
 
 ## Author
 
-* Masaya TANIGUCHI (ta2gch@gmail.com)
+* Masaya TANIGUCHI (asciian@gmail.com)
 
 ## Copyright
 
-Copyright (c) 2015 Masaya TANIGUCHI (ta2gch@gmail.com)
+Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
 
 ## License
 

@@ -1,5 +1,5 @@
 #|
-Copyright (c) 2015 Masaya TANIGUCHI (ta2gch@gmail.com)
+Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
