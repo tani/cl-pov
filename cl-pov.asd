@@ -1,10 +1,10 @@
 #|
   This file is a part of cl-pov project.
-  Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
 |#
 
 #|
-  Author: Masaya TANIGUCHI (asciian@gmail.com)
+  Author: asciian (asciian@outlook.jp.com)
 |#
 
 (in-package :cl-user)
@@ -14,7 +14,7 @@
 
 (defsystem cl-pov
   :version "0.1"
-  :author "Masaya TANIGUCHI"
+  :author "asciian"
   :license "GPLv3"
   :depends-on (:cl-ppcre)
   :components ((:module "src"

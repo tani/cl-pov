@@ -1,6 +1,6 @@
 #|
   This file is a part of cl-pov project.
-  Copyright (c) 2015 Masaya TANIGUCHI (asciian@gmail.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
 |#
 
 (in-package :cl-user)
@@ -9,7 +9,7 @@
 (in-package :cl-pov-test-asd)
 
 (defsystem cl-pov-test
-  :author "Masaya TANIGUCHI"
+  :author "asciian"
   :license "GPLv3"
   :depends-on (:cl-pov
                :prove)
