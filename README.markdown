@@ -52,11 +52,11 @@ cl-pov supports POV-Ray 3.5
 
 ## Author
 
-* asciian (asciian@outlook.jp.com)
+* asciian (asciian@outlook.jp)
 
 ## Copyright
 
-Copyright (c) 2015 asciian (asciian@outlook.jp.com)
+Copyright (c) 2015 asciian (asciian@outlook.jp)
 
 ## License
 

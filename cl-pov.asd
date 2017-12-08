@@ -1,10 +1,10 @@
 #|
   This file is a part of cl-pov project.
-  Copyright (c) 2015 asciian (asciian@outlook.jp.com)
+  Copyright (c) 2015 asciian (asciian@outlook.jp)
 |#
 
 #|
-  Author: asciian (asciian@outlook.jp.com)
+  Author: asciian (asciian@outlook.jp)
 |#
 
 (in-package :cl-user)
